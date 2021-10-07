@@ -49,7 +49,7 @@ namespace Lox
                 String line = Console.ReadLine();
                 if (line == null) break;
                 hadError = false;
-                var path = Path.Combine(Directory.GetCurrentDirectory(), line);
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "../../..", line);
                 var source = File.ReadAllText(path);
                 run(source);
             }
@@ -65,6 +65,14 @@ namespace Lox
             {
                 Console.WriteLine(token);
             }
+
+            Parser parser = new Parser(tokens);
+            Expr expression = parser.parse();
+
+            if (hadError) return;
+
+            Console.WriteLine(new AstPrinter().print(expression));
+
         }
 
         public static void error(int line, string message)
@@ -78,6 +86,18 @@ namespace Lox
             Console.WriteLine(
                 "[line " + line + "] Error" + where + ": " + message);
             hadError = true;
+        }
+
+        public static void error(Token token, string message)
+        {
+            if (token.type == TokenType.EOF)
+            {
+                report(token.line, " at end", message);
+            }
+            else
+            {
+                report(token.line, " at '" + token.lexeme + "'", message);
+            }
         }
     }
 }
