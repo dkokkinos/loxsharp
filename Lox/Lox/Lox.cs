@@ -6,7 +6,9 @@ namespace Lox
 {
     class Lox
     {
+        private static readonly Interpreter _interpreter = new Interpreter();
         static bool hadError = false;
+        static bool hadRuntimeError = false;
 
         static void Main(string[] args)
         {
@@ -49,13 +51,14 @@ namespace Lox
                 String line = Console.ReadLine();
                 if (line == null) break;
                 hadError = false;
+                hadRuntimeError = false;
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "../../..", line);
                 var source = File.ReadAllText(path);
                 run(source);
             }
         }
 
-        private static void run(String source)
+        private static int run(String source)
         {
             Scanner scanner = new Scanner(source);
             List<Token> tokens = scanner.scanTokens();
@@ -69,10 +72,13 @@ namespace Lox
             Parser parser = new Parser(tokens);
             Expr expression = parser.parse();
 
-            if (hadError) return;
+            if (hadError) return 65;
+            if (hadRuntimeError) return 70;
 
             Console.WriteLine(new AstPrinter().print(expression));
 
+            _interpreter.Interpret(expression);
+            return 0;
         }
 
         public static void error(int line, string message)
@@ -99,5 +105,14 @@ namespace Lox
                 report(token.line, " at '" + token.lexeme + "'", message);
             }
         }
+
+
+        public static void RuntimeError(RuntimeError error)
+        {
+            Console.WriteLine(error.Message);
+            Console.WriteLine($"[line {error.Token.line}]");
+            hadRuntimeError = true;
+        }
+
     }
 }

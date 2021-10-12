@@ -182,7 +182,7 @@ namespace Lox
             advance();
 
             // Trim the surrounding quotes.
-            String value = source.Substring(start + 1, current - 1);
+            String value = source.Substring(start + 1, current - start - 2);
             addToken(STRING, value);
         }
 
