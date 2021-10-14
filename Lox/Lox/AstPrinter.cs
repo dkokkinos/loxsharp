@@ -14,6 +14,11 @@ namespace Lox
             return expr.accept(this);
         }
 
+        public string visitAssignExpr(Assign expr)
+        {
+            throw new NotImplementedException();
+        }
+
         public string visitBinaryExpr(Binary expr)
         {
             return parenthesize(expr._operator.lexeme,
@@ -34,6 +39,11 @@ namespace Lox
         public string visitUnaryExpr(Unary expr)
         {
             return parenthesize(expr._operator.lexeme, expr.right);
+        }
+
+        public string visitVariableExpr(Variable expr)
+        {
+            throw new NotImplementedException();
         }
 
         private String parenthesize(String name, params Expr[] exprs)

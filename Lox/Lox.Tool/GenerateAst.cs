@@ -12,11 +12,22 @@ namespace Lox.Tool
         public static void Main(string[] args)
         {
             string outputDir = "../../../../Lox";
+
+            defineAst(outputDir, "Stmt", new List<string>()
+            {
+                "Block : List<Stmt> statements",
+                "Expression : Expr expression",
+                "Print : Expr expression",
+                "Var : Token name, Expr initializer"
+            });
+
             defineAst(outputDir, "Expr", new List<string>() {
+              "Assign   : Token name, Expr value",
               "Binary   : Expr left, Token _operator, Expr right",
               "Grouping : Expr expression",
               "Literal  : Object value",
-              "Unary    : Token _operator, Expr right"
+              "Unary    : Token _operator, Expr right",
+              "Variable : Token name"
             });
         }
 
@@ -27,6 +38,7 @@ namespace Lox.Tool
 
             sb.AppendLine("using System;");
             sb.AppendLine("using Lox;");
+            sb.AppendLine("using System.Collections.Generic;");
             sb.AppendLine("namespace Lox {");
             sb.AppendLine("public abstract class " + baseName + " {");
 

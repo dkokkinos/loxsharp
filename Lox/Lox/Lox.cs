@@ -70,14 +70,12 @@ namespace Lox
             }
 
             Parser parser = new Parser(tokens);
-            Expr expression = parser.parse();
+            var statements = parser.parse();
 
             if (hadError) return 65;
             if (hadRuntimeError) return 70;
 
-            Console.WriteLine(new AstPrinter().print(expression));
-
-            _interpreter.Interpret(expression);
+            _interpreter.Interpret(statements);
             return 0;
         }
 
