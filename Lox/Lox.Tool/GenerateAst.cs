@@ -17,17 +17,21 @@ namespace Lox.Tool
             {
                 "Block : List<Stmt> statements",
                 "Expression : Expr expression",
+                "If : Expr condition, Stmt thenBranch, Stmt elseBranch",
                 "Print : Expr expression",
-                "Var : Token name, Expr initializer"
+                "Var : Token name, Expr initializer",
+                "While : Expr condition, Stmt body"
             });
 
-            defineAst(outputDir, "Expr", new List<string>() {
-              "Assign   : Token name, Expr value",
-              "Binary   : Expr left, Token _operator, Expr right",
-              "Grouping : Expr expression",
-              "Literal  : Object value",
-              "Unary    : Token _operator, Expr right",
-              "Variable : Token name"
+            defineAst(outputDir, "Expr", new List<string>() 
+            {
+                "Assign   : Token name, Expr value",
+                "Binary   : Expr left, Token _operator, Expr right",
+                "Grouping : Expr expression",
+                "Literal  : Object value",
+                "Logical  : Expr left, Token _operator, Expr right",
+                "Unary    : Token _operator, Expr right",
+                "Variable : Token name"
             });
         }
 

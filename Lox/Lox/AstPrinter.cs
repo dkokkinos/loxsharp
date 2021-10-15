@@ -36,6 +36,11 @@ namespace Lox
             return expr.value.ToString();
         }
 
+        public string visitLogicalExpr(Logical expr)
+        {
+            throw new NotImplementedException();
+        }
+
         public string visitUnaryExpr(Unary expr)
         {
             return parenthesize(expr._operator.lexeme, expr.right);

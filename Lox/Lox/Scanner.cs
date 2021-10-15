@@ -141,7 +141,7 @@ namespace Lox
             }
 
             addToken(NUMBER,
-                Double.Parse(source.Substring(start, current - start)));
+                decimal.Parse(source.Substring(start, current - start)));
         }
 
         private char peekNext()

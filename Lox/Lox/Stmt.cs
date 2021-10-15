@@ -6,8 +6,10 @@ public abstract class Stmt {
   public interface Visitor<R> {
     R visitBlockStmt(Block stmt);
     R visitExpressionStmt(Expression stmt);
+    R visitIfStmt(If stmt);
     R visitPrintStmt(Print stmt);
     R visitVarStmt(Var stmt);
+    R visitWhileStmt(While stmt);
   }
   public class Block : Stmt {
     public Block(List<Stmt> statements) {
@@ -30,6 +32,21 @@ public abstract class Stmt {
     }
 
    public readonly Expr expression;
+  }
+  public class If : Stmt {
+    public If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
+      this.condition = condition;
+      this.thenBranch = thenBranch;
+      this.elseBranch = elseBranch;
+    }
+
+    public override R accept<R>(Visitor<R> visitor) {
+      return visitor.visitIfStmt(this);
+    }
+
+   public readonly Expr condition;
+   public readonly Stmt thenBranch;
+   public readonly Stmt elseBranch;
   }
   public class Print : Stmt {
     public Print(Expr expression) {
@@ -54,6 +71,19 @@ public abstract class Stmt {
 
    public readonly Token name;
    public readonly Expr initializer;
+  }
+  public class While : Stmt {
+    public While(Expr condition, Stmt body) {
+      this.condition = condition;
+      this.body = body;
+    }
+
+    public override R accept<R>(Visitor<R> visitor) {
+      return visitor.visitWhileStmt(this);
+    }
+
+   public readonly Expr condition;
+   public readonly Stmt body;
   }
 
   public abstract R accept<R>(Visitor<R> visitor);

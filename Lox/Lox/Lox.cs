@@ -12,17 +12,6 @@ namespace Lox
 
         static void Main(string[] args)
         {
-
-            Expr expression = new Expr.Binary(
-        new Expr.Unary(
-            new Token(TokenType.MINUS, "-", null, 1),
-            new Expr.Literal(123)),
-        new Token(TokenType.STAR, "*", null, 1),
-        new Expr.Grouping(
-            new Expr.Literal(45.67)));
-
-            Console.WriteLine(new AstPrinter().print(expression));
-
             if (args.Length > 1)
             {
                 Console.WriteLine("Usage: jlox [script]");
@@ -62,12 +51,6 @@ namespace Lox
         {
             Scanner scanner = new Scanner(source);
             List<Token> tokens = scanner.scanTokens();
-
-            // For now, just print the tokens.
-            foreach (Token token in tokens)
-            {
-                Console.WriteLine(token);
-            }
 
             Parser parser = new Parser(tokens);
             var statements = parser.parse();

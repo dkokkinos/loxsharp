@@ -33,12 +33,12 @@ namespace Lox
             {
                 case TokenType.MINUS:
                     checkNumberOperands(expr._operator, left, right);
-                    return (double)left - (double)right;
+                    return (decimal)left - (decimal)right;
                 case TokenType.PLUS:
                     if(left is string l && right is string r)
                     {
                         return l + r;
-                    }else if(left is double ld && right is double rd)
+                    }else if(left is decimal ld && right is decimal rd)
                     {
                         return ld + rd;
                     }
@@ -49,26 +49,26 @@ namespace Lox
                     
                 case TokenType.STAR:
                     checkNumberOperands(expr._operator, left, right);
-                    return (double)left * (double)right;
+                    return (decimal)left * (decimal)right;
                 case TokenType.SLASH:
                     checkNumberOperands(expr._operator, left, right);
-                    return (double)left / (double)right;
+                    return (decimal)left / (decimal)right;
                 case TokenType.GREATER:
                     checkNumberOperands(expr._operator, left, right);
-                    return (double)left > (double)right;
+                    return (decimal)left > (decimal)right;
                 case TokenType.GREATER_EQUAL:
                     checkNumberOperands(expr._operator, left, right);
-                    return (double)left >= (double)right;
+                    return (decimal)left >= (decimal)right;
                 case TokenType.LESS:
                     checkNumberOperands(expr._operator, left, right);
-                    return (double)left < (double)right;
+                    return (decimal)left < (decimal)right;
                 case TokenType.LESS_EQUAL:
                     checkNumberOperands(expr._operator, left, right);
-                    return (double)left <= (double)right;
+                    return (decimal)left <= (decimal)right;
                 case TokenType.BANG_EQUAL:
                     return !isEqual(left, right);
                 case TokenType.EQUAL_EQUAL:
-                    return isEqual(left, right);
+                    return left.Equals( right );
             }
 
             // unreachable
@@ -89,7 +89,7 @@ namespace Lox
         {
             if (obj == null) return "nil";
 
-            if(obj is double d)
+            if(obj is decimal d)
             {
                 string text = obj.ToString();
                 if (text.EndsWith(".0"))
@@ -110,6 +110,21 @@ namespace Lox
             return expr.value;
         }
 
+        public object visitLogicalExpr(Expr.Logical expr)
+        {
+            var left = evaluate(expr);
+            if(expr._operator.type == TokenType.OR)
+            {
+                if (isTruthy(left)) return left;
+            }
+            else
+            {
+                if (!isTruthy(left)) return left;
+            }
+
+            return evaluate(expr.right);
+        }
+
         public object visitUnaryExpr(Expr.Unary expr)
         {
             var value = evaluate(expr.right);
@@ -117,7 +132,7 @@ namespace Lox
             {
                 case TokenType.MINUS:
                     checkNumberOperand(expr._operator, value);
-                    return -(double)value;
+                    return -(decimal)value;
                 case TokenType.BANG:
                     return isTruthy(value);
             }
@@ -133,18 +148,18 @@ namespace Lox
 
         private void checkNumberOperand(Token @operator, object right)
         {
-            if (right is double) return;
+            if (right is decimal) return;
             throw new RuntimeError(@operator, "Operand must be a number.");
         }
 
         private void checkNumberOperands(Token @operator, object left, object right)
         {
-            if (left is double && right is double)
+            if (left is decimal && right is decimal)
                 return;
             throw new RuntimeError(@operator, "Operands must be numbers.");
         }
 
-        private object isTruthy(object value)
+        private bool isTruthy(object value)
         {
             if (value == null)
                 return false;
@@ -192,6 +207,18 @@ namespace Lox
             return null;
         }
 
+        public object visitIfStmt(Stmt.If stmt)
+        {
+            if (isTruthy(evaluate(stmt.condition)))
+            {
+                execute(stmt.thenBranch);
+            }
+            else if (stmt.elseBranch != null)
+                execute(stmt.elseBranch);
+
+            return null;
+        }
+
         public object visitPrintStmt(Stmt.Print stmt)
         {
             var value = evaluate(stmt.expression);
@@ -207,6 +234,16 @@ namespace Lox
                 value = evaluate(stmt.initializer);
             
             environment.Define(stmt.name.lexeme, value);
+            return null;
+        }
+
+        public object visitWhileStmt(Stmt.While stmt)
+        {
+            while (isTruthy(evaluate(stmt.condition)))
+            {
+                execute(stmt.body);
+            }
+
             return null;
         }
 
