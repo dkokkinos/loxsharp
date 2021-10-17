@@ -6,6 +6,7 @@ public abstract class Expr {
   public interface Visitor<R> {
     R visitAssignExpr(Assign expr);
     R visitBinaryExpr(Binary expr);
+    R visitCallExpr(Call expr);
     R visitGroupingExpr(Grouping expr);
     R visitLiteralExpr(Literal expr);
     R visitLogicalExpr(Logical expr);
@@ -39,6 +40,21 @@ public abstract class Expr {
    public readonly Expr left;
    public readonly Token _operator;
    public readonly Expr right;
+  }
+  public class Call : Expr {
+    public Call(Expr callee, Token paren, List<Expr> arguments) {
+      this.callee = callee;
+      this.paren = paren;
+      this.arguments = arguments;
+    }
+
+    public override R accept<R>(Visitor<R> visitor) {
+      return visitor.visitCallExpr(this);
+    }
+
+   public readonly Expr callee;
+   public readonly Token paren;
+   public readonly List<Expr> arguments;
   }
   public class Grouping : Expr {
     public Grouping(Expr expression) {

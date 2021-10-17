@@ -8,7 +8,26 @@ namespace Lox
 {
     public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
     {
-        private Environment environment = new Environment();
+        public readonly Environment globals;
+        private Environment environment;
+
+        public Interpreter()
+        {
+            globals = new Environment();
+            environment = globals;
+
+            globals.Define("clock", new ClockCallable());
+        }
+
+        class ClockCallable : LoxCallable
+        {
+            public int arity() => 0;
+
+            public object call(Interpreter interpreter, List<object> arguments)
+                => DateTime.Now;
+
+            public override string ToString() => "<native fn>";
+        }
 
         public void Interpret(List<Stmt> statements)
         {
@@ -75,6 +94,21 @@ namespace Lox
             return null;
         }
 
+        public object visitCallExpr(Expr.Call expr)
+        {
+            object callee = evaluate(expr.callee);
+
+            List<object> arguments = new List<object>();
+            foreach (var arg in expr.arguments)
+                arguments.Add(evaluate(arg));
+
+            if (callee is not LoxCallable function)
+                throw new RuntimeError(expr.paren, "Can onle call functions and classes.");
+            if (arguments.Count != function.arity())
+                throw new RuntimeError(expr.paren, $"Expected {function.arity()} " +
+                    $"arguments but got {arguments.Count}.");
+            return function.call(this, arguments);
+        }
 
         private bool isEqual(object left, object right)
         {
@@ -178,7 +212,7 @@ namespace Lox
             statement.accept(this);
         }
 
-        private void executeBlock(List<Stmt> statements, Environment environment)
+        public void executeBlock(List<Stmt> statements, Environment environment)
         {
             Environment previous = this.environment;
             try
@@ -204,6 +238,14 @@ namespace Lox
         public object visitExpressionStmt(Stmt.Expression stmt)
         {
             evaluate(stmt.expression);
+            return null;
+        }
+
+
+        public object visitFunctionStmt(Stmt.Function stmt)
+        {
+            LoxFunction function = new LoxFunction(stmt);
+            environment.Define(stmt.name.lexeme, function);
             return null;
         }
 

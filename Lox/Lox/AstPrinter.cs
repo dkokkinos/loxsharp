@@ -25,6 +25,11 @@ namespace Lox
                         expr.left, expr.right);
         }
 
+        public string visitCallExpr(Call expr)
+        {
+            throw new NotImplementedException();
+        }
+
         public string visitGroupingExpr(Grouping expr)
         {
             return parenthesize("group", expr.expression);

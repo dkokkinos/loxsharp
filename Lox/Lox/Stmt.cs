@@ -6,6 +6,7 @@ public abstract class Stmt {
   public interface Visitor<R> {
     R visitBlockStmt(Block stmt);
     R visitExpressionStmt(Expression stmt);
+    R visitFunctionStmt(Function stmt);
     R visitIfStmt(If stmt);
     R visitPrintStmt(Print stmt);
     R visitVarStmt(Var stmt);
@@ -32,6 +33,21 @@ public abstract class Stmt {
     }
 
    public readonly Expr expression;
+  }
+  public class Function : Stmt {
+    public Function(Token name, List<Token> _params, List<Stmt> body) {
+      this.name = name;
+      this._params = _params;
+      this.body = body;
+    }
+
+    public override R accept<R>(Visitor<R> visitor) {
+      return visitor.visitFunctionStmt(this);
+    }
+
+   public readonly Token name;
+   public readonly List<Token> _params;
+   public readonly List<Stmt> body;
   }
   public class If : Stmt {
     public If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
