@@ -244,7 +244,7 @@ namespace Lox
 
         public object visitFunctionStmt(Stmt.Function stmt)
         {
-            LoxFunction function = new LoxFunction(stmt);
+            LoxFunction function = new LoxFunction(stmt, environment);
             environment.Define(stmt.name.lexeme, function);
             return null;
         }
@@ -266,6 +266,15 @@ namespace Lox
             var value = evaluate(stmt.expression);
             Console.WriteLine(stringify(value));
             return null;
+        }
+
+
+        public object visitReturnStmt(Stmt.Return stmt)
+        {
+            object value = null;
+            if (stmt.value != null)
+                value = evaluate(stmt.value);
+            throw new Return(value);
         }
 
         public object visitVarStmt(Stmt.Var stmt)
