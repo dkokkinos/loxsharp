@@ -56,6 +56,11 @@ namespace Lox
             var statements = parser.parse();
 
             if (hadError) return 65;
+
+            Resolver resolver = new Resolver(_interpreter);
+            resolver.resolve(statements);
+
+            if (hadError) return 65;
             if (hadRuntimeError) return 70;
 
             _interpreter.Interpret(statements);
