@@ -21,6 +21,9 @@ namespace Lox
             if (this.fields.TryGetValue(name.lexeme, out object value))
                 return value;
 
+            LoxFunction method = klass.findMethod(name.lexeme);
+            if (method != null) return method.bind(this);
+
             throw new RuntimeError(name, $"Undefined property '{name.lexeme}'.");
         }
 

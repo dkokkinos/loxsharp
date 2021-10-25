@@ -181,6 +181,11 @@ namespace Lox
             return value;
         }
 
+        public object visitThisExpr(Expr.This expr)
+        {
+            return lookUpVariable(expr.keyword, expr);
+        }
+
         public object visitUnaryExpr(Expr.Unary expr)
         {
             var value = evaluate(expr.right);
@@ -276,7 +281,15 @@ namespace Lox
         public object visitClassStmt(Stmt.Class stmt)
         {
             environment.Define(stmt.name.lexeme, null);
-            LoxClass klass = new LoxClass(stmt.name.lexeme);
+
+            Dictionary<string, LoxFunction> methods = new();
+            foreach(var method in stmt.methods)
+            {
+                LoxFunction function = new(method, environment);
+                methods.Add(method.name.lexeme, function);
+            }
+
+            LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
             environment.Assign(stmt.name, klass);
             return null;
         }

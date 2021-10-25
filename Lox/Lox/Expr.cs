@@ -12,6 +12,7 @@ public abstract class Expr {
     R visitLiteralExpr(Literal expr);
     R visitLogicalExpr(Logical expr);
     R visitSetExpr(Set expr);
+    R visitThisExpr(This expr);
     R visitUnaryExpr(Unary expr);
     R visitVariableExpr(Variable expr);
   }
@@ -122,6 +123,17 @@ public abstract class Expr {
    public readonly Expr _object;
    public readonly Token name;
    public readonly Expr value;
+  }
+  public class This : Expr {
+    public This(Token keyword) {
+      this.keyword = keyword;
+    }
+
+    public override R accept<R>(Visitor<R> visitor) {
+      return visitor.visitThisExpr(this);
+    }
+
+   public readonly Token keyword;
   }
   public class Unary : Expr {
     public Unary(Token _operator, Expr right) {

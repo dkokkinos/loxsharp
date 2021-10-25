@@ -9,9 +9,25 @@ namespace Lox
     
     public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object>
     {
+
+        private enum FunctionType
+        {
+            NONE,
+            FUNCTION,
+            METHOD
+        }
+
+
+        private enum ClassType
+        {
+            NONE,
+            CLASS
+        }
+
         private readonly Interpreter interpreter;
         private readonly Stack<Dictionary<string, bool>> scopes;
         private FunctionType currentFunction = FunctionType.NONE;
+        private ClassType currentClass = ClassType.NONE;
 
         public Resolver(Interpreter interpreter)
         {
@@ -19,11 +35,7 @@ namespace Lox
             scopes = new();
         }
 
-        private enum FunctionType
-        {
-            NONE,
-            FUNCTION
-        }
+
 
         public object visitAssignExpr(Expr.Assign expr)
         {
@@ -50,8 +62,23 @@ namespace Lox
 
         public object visitClassStmt(Stmt.Class stmt)
         {
+            ClassType enclosingClass = currentClass;
+            currentClass = ClassType.CLASS;
+
             declare(stmt.name);
             define(stmt.name);
+
+            beginScope();
+            scopes.Peek().Add("this", true);
+
+            foreach(var method in stmt.methods)
+            {
+                FunctionType declaration = FunctionType.METHOD;
+                resolveFunction(method, declaration);
+            }
+
+            endScope();
+            currentClass = enclosingClass;
             return null;
         }
 
@@ -117,6 +144,17 @@ namespace Lox
         {
             resolve(expr.value);
             resolve(expr._object);
+            return null;
+        }
+
+        public object visitThisExpr(Expr.This expr)
+        {
+            if(currentClass == ClassType.NONE)
+            {
+                Lox.error(expr.keyword, "Can't use 'this' outside of a class.");
+                return null;
+            }
+            resolveLocal(expr, expr.keyword);
             return null;
         }
 

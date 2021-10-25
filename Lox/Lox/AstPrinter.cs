@@ -51,6 +51,16 @@ namespace Lox
             throw new NotImplementedException();
         }
 
+        public string visitSetExpr(Set expr)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string visitThisExpr(This expr)
+        {
+            throw new NotImplementedException();
+        }
+
         public string visitUnaryExpr(Unary expr)
         {
             return parenthesize(expr._operator.lexeme, expr.right);

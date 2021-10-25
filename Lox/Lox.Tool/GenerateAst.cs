@@ -36,6 +36,7 @@ namespace Lox.Tool
                 "Literal  : Object value",
                 "Logical  : Expr left, Token _operator, Expr right",
                 "Set      : Expr _object, Token name, Expr value",
+                "This     : Token keyword",
                 "Unary    : Token _operator, Expr right",
                 "Variable : Token name"
             });
