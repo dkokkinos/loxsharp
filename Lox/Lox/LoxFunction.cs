@@ -10,11 +10,13 @@ namespace Lox
     {
         private readonly Stmt.Function declaration;
         private readonly Environment closure;
+        private readonly bool isInitializer;
 
-        public LoxFunction(Stmt.Function declaration, Environment closure)
+        public LoxFunction(Stmt.Function declaration, Environment closure, bool isInitializer)
         {
             this.closure = closure;
             this.declaration = declaration;
+            this.isInitializer = isInitializer;
         }
 
         public int arity() => declaration._params.Count;
@@ -31,16 +33,18 @@ namespace Lox
                 interpreter.executeBlock(declaration.body, environment);
             }catch(Return returnValue)
             {
+                if (isInitializer) return closure.GetAt(0, "this");
                 return returnValue.Value;
             }
+            if (isInitializer) return closure.GetAt(0, "this");
             return null;
         }
 
-        public object bind(LoxInstance loxInstance)
+        public LoxFunction bind(LoxInstance loxInstance)
         {
             Environment environment = new Environment(closure);
             environment.Define("this", loxInstance);
-            return new LoxFunction(declaration, environment);
+            return new LoxFunction(declaration, environment, isInitializer);
         }
 
         public override string ToString() => $"<fn {declaration.name.lexeme}>";

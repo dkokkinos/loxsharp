@@ -285,7 +285,7 @@ namespace Lox
             Dictionary<string, LoxFunction> methods = new();
             foreach(var method in stmt.methods)
             {
-                LoxFunction function = new(method, environment);
+                LoxFunction function = new(method, environment, method.name.lexeme == "init");
                 methods.Add(method.name.lexeme, function);
             }
 
@@ -303,7 +303,7 @@ namespace Lox
 
         public object visitFunctionStmt(Stmt.Function stmt)
         {
-            LoxFunction function = new LoxFunction(stmt, environment);
+            LoxFunction function = new LoxFunction(stmt, environment, false);
             environment.Define(stmt.name.lexeme, function);
             return null;
         }

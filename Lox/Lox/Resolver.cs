@@ -14,6 +14,7 @@ namespace Lox
         {
             NONE,
             FUNCTION,
+            INITIALIZER,
             METHOD
         }
 
@@ -74,6 +75,8 @@ namespace Lox
             foreach(var method in stmt.methods)
             {
                 FunctionType declaration = FunctionType.METHOD;
+                if (method.name.lexeme.Equals("init"))
+                    declaration = FunctionType.INITIALIZER;
                 resolveFunction(method, declaration);
             }
 
@@ -234,7 +237,13 @@ namespace Lox
                 Lox.error(stmt.keyword, "Can't return from top-level code.");
             }
             if(stmt.value != null)
+            {
+                if(currentFunction == FunctionType.INITIALIZER)
+                {
+                    Lox.error(stmt.keyword, "Can't return a value from an initializer.");
+                }
                 resolve(stmt.value);
+            }
             return null;
         }
 
