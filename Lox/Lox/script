@@ -1,14 +1,8 @@
 //return "";
 
-fun makeCounter() {
-  var i = 0;
-  return i;
-}
-
-var counter = makeCounter;
-print counter();
-print counter(); 
-
+class Bagel {}
+var bagel = Bagel();
+print bagel;
 
 // does not work..
 //fun makeCounter() {

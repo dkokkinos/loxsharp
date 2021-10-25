@@ -41,6 +41,7 @@ namespace Lox
         {
             try
             {
+                if (match(CLASS)) return classDeclaration();
                 if (match(FUN)) return function("function");
                 if (match(VAR)) return varDeclaration();
                 return statement();
@@ -50,6 +51,21 @@ namespace Lox
                 synchronize();
                 return null;
             }
+        }
+
+        private Stmt classDeclaration()
+        {
+            Token name = consume(IDENTIFIER, "Expect class name.");
+            consume(LEFT_BRACE, "Expect '{' before class body.");
+
+            List<Stmt.Function> methods = new List<Stmt.Function>();
+            while(!check(RIGHT_BRACE) && !isAtEnd())
+            {
+                methods.Add(function("method"));
+            }
+
+            consume(RIGHT_BRACE, "Expect '}' after class body.");
+            return new Stmt.Class(name, methods);
         }
 
         private Stmt statement()
@@ -173,7 +189,7 @@ namespace Lox
             return new Stmt.Expression(expr);
         }
 
-        private Stmt function(string kind)
+        private Stmt.Function function(string kind)
         {
             Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
             consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
@@ -221,6 +237,9 @@ namespace Lox
                 if(expr is Expr.Variable v)
                 {
                     return new Expr.Assign(v.name, value);
+                }else if(expr is Expr.Get get)
+                {
+                    return new Expr.Set(get._object, get.name, value);
                 }
 
                 error(equals, "Invalid assignment target.");
@@ -333,6 +352,11 @@ namespace Lox
             {
                 if (match(LEFT_PAREN))
                     expr = finishCall(expr);
+                else if (match(DOT))
+                {
+                    Token name = consume(IDENTIFIER, "Expect property name after '.'.");
+                    expr = new Expr.Get(expr, name);
+                }
                 else
                     break;
             }

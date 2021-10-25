@@ -111,6 +111,15 @@ namespace Lox
             return function.call(this, arguments);
         }
 
+        public object visitGetExpr(Expr.Get expr)
+        {
+            object _object = evaluate(expr._object);
+            if (_object is LoxInstance loxInstance)
+                return loxInstance.Get(expr.name);
+
+            throw new RuntimeError(expr.name, "Only instances have properties.");
+        }
+
         private bool isEqual(object left, object right)
         {
             if (left == null && right == null)
@@ -158,6 +167,18 @@ namespace Lox
             }
 
             return evaluate(expr.right);
+        }
+
+        public object visitSetExpr(Expr.Set expr)
+        {
+            var obj = evaluate(expr._object);
+
+            if (obj is not LoxInstance loxInstance)
+                throw new RuntimeError(expr.name, "Only instances have fields.");
+
+            object value = evaluate(expr.value);
+            loxInstance.Set(expr.name, value);
+            return value;
         }
 
         public object visitUnaryExpr(Expr.Unary expr)
@@ -249,6 +270,14 @@ namespace Lox
         public object visitBlockStmt(Stmt.Block stmt)
         {
             executeBlock(stmt.statements, new Environment(environment));
+            return null;
+        }
+
+        public object visitClassStmt(Stmt.Class stmt)
+        {
+            environment.Define(stmt.name.lexeme, null);
+            LoxClass klass = new LoxClass(stmt.name.lexeme);
+            environment.Assign(stmt.name, klass);
             return null;
         }
 

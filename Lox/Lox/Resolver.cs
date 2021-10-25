@@ -47,6 +47,14 @@ namespace Lox
             return null;
         }
 
+
+        public object visitClassStmt(Stmt.Class stmt)
+        {
+            declare(stmt.name);
+            define(stmt.name);
+            return null;
+        }
+
         public object visitCallExpr(Expr.Call expr)
         {
             resolve(expr.callee);
@@ -54,6 +62,12 @@ namespace Lox
             foreach (var arg in expr.arguments)
                 resolve(arg);
 
+            return null;
+        }
+
+        public object visitGetExpr(Expr.Get expr)
+        {
+            resolve(expr._object);
             return null;
         }
 
@@ -96,6 +110,13 @@ namespace Lox
         {
             resolve(expr.left);
             resolve(expr.right);
+            return null;
+        }
+
+        public object visitSetExpr(Expr.Set expr)
+        {
+            resolve(expr.value);
+            resolve(expr._object);
             return null;
         }
 
