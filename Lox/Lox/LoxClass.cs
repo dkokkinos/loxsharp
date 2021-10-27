@@ -9,11 +9,13 @@ namespace Lox
     public class LoxClass : LoxCallable
     {
         public string Name { get; }
+        public readonly LoxClass superclass;
         private readonly Dictionary<string, LoxFunction> methods;
 
-        public LoxClass(string name, Dictionary<string, LoxFunction> methods)
+        public LoxClass(string name, LoxClass superclass, Dictionary<string, LoxFunction> methods)
         {
             this.Name = name;
+            this.superclass = superclass;
             this.methods = methods;
         }
 
@@ -33,10 +35,13 @@ namespace Lox
             return instance;
         }
 
-        public LoxFunction findMethod(string lexeme)
+        public LoxFunction findMethod(string name)
         {
-            if (methods.TryGetValue(lexeme, out LoxFunction method))
+            if (methods.TryGetValue(name, out LoxFunction method))
                 return method;
+
+            if (superclass != null)
+                return superclass.findMethod(name);
 
             return null;
         }

@@ -56,6 +56,11 @@ namespace Lox
             throw new NotImplementedException();
         }
 
+        public string visitSuperExpr(Super expr)
+        {
+            throw new NotImplementedException();
+        }
+
         public string visitThisExpr(This expr)
         {
             throw new NotImplementedException();

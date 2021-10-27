@@ -16,7 +16,7 @@ namespace Lox.Tool
             defineAst(outputDir, "Stmt", new List<string>()
             {
                 "Block : List<Stmt> statements",
-                "Class : Token name, List<Stmt.Function> methods",
+                "Class : Token name, Expr.Variable superclass, List<Stmt.Function> methods",
                 "Expression : Expr expression",
                 "Function : Token name, List<Token> _params, List<Stmt> body",
                 "If : Expr condition, Stmt thenBranch, Stmt elseBranch",
@@ -36,6 +36,7 @@ namespace Lox.Tool
                 "Literal  : Object value",
                 "Logical  : Expr left, Token _operator, Expr right",
                 "Set      : Expr _object, Token name, Expr value",
+                "Super    : Token keyword, Token method",
                 "This     : Token keyword",
                 "Unary    : Token _operator, Expr right",
                 "Variable : Token name"

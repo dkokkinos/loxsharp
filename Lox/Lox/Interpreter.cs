@@ -181,6 +181,18 @@ namespace Lox
             return value;
         }
 
+        public object visitSuperExpr(Expr.Super expr)
+        {
+            int distance = locals[expr];
+            LoxClass superclass = environment.GetAt(distance, "super") as LoxClass;
+            LoxInstance obj = environment.GetAt(distance - 1, "this") as LoxInstance;
+
+            LoxFunction method = superclass.findMethod(expr.method.lexeme);
+            if (method == null)
+                throw new RuntimeError(expr.method, $"Undefined property '{expr.method.lexeme}'.");
+            return method.bind(obj);
+        }
+
         public object visitThisExpr(Expr.This expr)
         {
             return lookUpVariable(expr.keyword, expr);
@@ -280,7 +292,21 @@ namespace Lox
 
         public object visitClassStmt(Stmt.Class stmt)
         {
+            LoxClass superclass = null;
+            if(stmt.superclass != null)
+            {
+                superclass = evaluate(stmt.superclass) as LoxClass;
+                if (superclass == null)
+                    throw new RuntimeError(stmt.superclass.name, "Superclass must be a class.");
+            }
+
             environment.Define(stmt.name.lexeme, null);
+
+            if(stmt.superclass != null)
+            {
+                environment = new Environment(environment);
+                environment.Define("super", superclass);
+            }
 
             Dictionary<string, LoxFunction> methods = new();
             foreach(var method in stmt.methods)
@@ -289,7 +315,11 @@ namespace Lox
                 methods.Add(method.name.lexeme, function);
             }
 
-            LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
+            LoxClass klass = new LoxClass(stmt.name.lexeme, superclass, methods);
+            if(superclass != null)
+            {
+                environment = environment.Enclosing;
+            }
             environment.Assign(stmt.name, klass);
             return null;
         }
